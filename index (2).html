@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Until our day</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;1,9..144,300&family=Karla:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#FBF3E8;--ink:#3A1428;--soft:#8A5A6B;--accent:#B8325A;--thread:#D9A441;--card:#FFFFFF;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#22101C;--ink:#F8E8E0;--soft:#C79DAB;--accent:#F08AA6;--thread:#E2B66B;--card:#2F1829}}
+:root[data-theme="dark"]{--bg:#22101C;--ink:#F8E8E0;--soft:#C79DAB;--accent:#F08AA6;--thread:#E2B66B;--card:#2F1829}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:inherit}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Karla,system-ui,sans-serif;font-size:1.05rem;line-height:1.6;min-height:100vh}
+main{max-width:46rem;margin:0 auto;padding:4rem 1.5rem 3rem;text-align:center}
+h1{font-family:Fraunces,Georgia,serif;font-weight:300;font-size:clamp(2.1rem,7vw,3.4rem);line-height:1.15;margin:0 0 .5rem;letter-spacing:-.01em}
+h1 em{font-style:italic;color:var(--accent)}
+.sub{color:var(--soft);margin:0 0 3.5rem}
+.count{display:flex;justify-content:center;align-items:flex-start;gap:clamp(.4rem,3vw,1.4rem);position:relative;margin-bottom:1rem}
+.count::before{content:"";position:absolute;left:0;right:0;top:1.6rem;height:1px;background:var(--thread);opacity:.55;z-index:0}
+.unit{background:var(--bg);position:relative;z-index:1;padding:0 .3rem;min-width:4.2rem}
+.num{font-family:Fraunces,Georgia,serif;font-weight:500;font-size:clamp(2.6rem,12vw,5.2rem);line-height:1;font-variant-numeric:tabular-nums;display:block}
+.lab{color:var(--soft);font-size:.9rem;margin-top:.5rem;display:block}
+.date{color:var(--soft);margin:2rem 0 4rem}
+.together{border-top:1px solid var(--thread);border-bottom:1px solid var(--thread);padding:2rem 0;margin-bottom:3.5rem}
+.together p{margin:0 0 .4rem;color:var(--soft)}
+.together strong{font-family:Fraunces,Georgia,serif;font-weight:300;font-size:clamp(1.5rem,5vw,2.2rem);color:var(--ink);display:block}
+button{font:inherit;font-weight:500;background:var(--accent);color:#fff;border:0;border-radius:2rem;padding:.8rem 1.8rem;cursor:pointer;transition:transform .2s}
+button:hover{transform:translateY(-2px)}
+button:focus-visible{outline:3px solid var(--thread);outline-offset:3px}
+.note{max-height:0;overflow:hidden;transition:max-height .9s ease,opacity .9s ease;opacity:0}
+.note.open{max-height:300rem;opacity:1}
+.note div{background:var(--card);border-radius:.4rem;padding:2rem 1.6rem;margin-top:2rem;text-align:left;font-family:Fraunces,Georgia,serif;font-weight:300;font-size:1.2rem;line-height:1.75;box-shadow:0 1px 0 var(--thread)}
+.note .sign{display:block;margin-top:1.2rem;font-style:italic;color:var(--accent);text-align:right}
+.today{display:none;font-family:Fraunces,Georgia,serif;font-size:clamp(2.4rem,9vw,4rem);color:var(--accent);margin:1rem 0}
+.arrived .count,.arrived .seal,.arrived .date{display:none}.arrived .today{display:block}.seal{color:var(--soft);font-family:Fraunces,Georgia,serif;font-style:italic;margin:0}.note div p{margin:0 0 1.2rem}
+@media (prefers-reduced-motion:reduce){.note,button{transition:none}}
+</style>
+</head>
+<body>
+<main id="app">
+<h1 id="title"></h1>
+<p class="sub" id="sub"></p>
+<div class="count" aria-live="off">
+<div class="unit"><span class="num" id="d">0</span><span class="lab">days</span></div>
+<div class="unit"><span class="num" id="h">0</span><span class="lab">hours</span></div>
+<div class="unit"><span class="num" id="m">0</span><span class="lab">minutes</span></div>
+<div class="unit"><span class="num" id="s">0</span><span class="lab">seconds</span></div>
+</div>
+<div class="today">Happy anniversary.</div>
+<p class="date" id="date"></p>
+<section class="together"><p>Together so far</p><strong id="tog"></strong></section>
+<p class="seal" id="seal">A letter is waiting for you. It opens at midnight on our day.</p>
+<div class="note" id="note"><div id="letter"></div></div>
+</main>
+<script>
+// Edit these to make it hers.
+var CONFIG={
+  her:"My love",
+  from:"Your name",
+  eventName:"12th anniversary",
+  year:2026, month:10, day:22, // the letter opens at midnight (12:00 am) on this date, in the viewer's local time
+  startYear:2014, startMonth:10, startDay:22,
+  letter:[
+    "Twelve years ago, I didn't know how much one person could change the shape of my days. Now I can't imagine a single one without you in it.",
+    "Thank you for the ordinary moments, the ones nobody else sees: the quiet mornings, the tired evenings, the jokes only we understand. If I could keep only a few memories, those are the ones I'd choose.",
+    "Thank you for your patience when I wasn't easy to love, for your strength when things got hard, and for believing in us even on the days it would have been simpler not to.",
+    "You turn every place we stand into home. I'm proud of the life we've built together, and of the person I've become beside you.",
+    "Whatever the next twelve years bring, I want to meet them with my hand in yours. I love you more today than I did on our first day, and tomorrow I'll love you more still.",
+    "Happy 12th anniversary, my love."
+  ]
+};
+var opened=false;
+var $=function(i){return document.getElementById(i)};
+$("title").innerHTML="Until our "+CONFIG.eventName+", <em>"+CONFIG.her+"</em>";
+$("sub").textContent="Every second brings us closer.";
+var L=$("letter");
+CONFIG.letter.forEach(function(t){var p=document.createElement("p");p.textContent=t;L.appendChild(p)});
+var sg=document.createElement("span");sg.className="sign";sg.textContent="Always yours, "+CONFIG.from;L.appendChild(sg);
+function target(){return new Date(CONFIG.year,CONFIG.month-1,CONFIG.day)}
+function tick(){
+  var n=new Date(),t=target(),diff=t-n;
+  $("date").textContent=t.toLocaleDateString(undefined,{weekday:"long",year:"numeric",month:"long",day:"numeric"});
+  var arrived=diff<=0;
+  document.getElementById("app").classList.toggle("arrived",arrived);
+  if(arrived&&!opened){opened=true;$("note").classList.add("open");$("title").innerHTML="Happy "+CONFIG.eventName+", <em>"+CONFIG.her+"</em>";$("sub").textContent="Twelve years, and I'd choose you every time."}
+  if(diff<0)diff=0;
+  var s=Math.floor(diff/1000);
+  $("d").textContent=Math.floor(s/86400);
+  $("h").textContent=Math.floor(s%86400/3600);
+  $("m").textContent=Math.floor(s%3600/60);
+  $("s").textContent=s%60;
+  var a=new Date(CONFIG.startYear,CONFIG.startMonth-1,CONFIG.startDay),y=n.getFullYear()-a.getFullYear(),mo=n.getMonth()-a.getMonth(),dd=n.getDate()-a.getDate();
+  if(dd<0){mo--;dd+=new Date(n.getFullYear(),n.getMonth(),0).getDate()}
+  if(mo<0){y--;mo+=12}
+  var days=Math.floor((n-a)/86400000);
+  $("tog").textContent=y+" years, "+mo+" months, "+dd+" days ("+days.toLocaleString()+" days)";
+}
+tick();setInterval(tick,1000);
+
+</script>
+</body>
+</html>
